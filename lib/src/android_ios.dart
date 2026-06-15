@@ -12,45 +12,40 @@ class OpenIdConnectAndroidiOS {
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
-    //Create the url
-    final result = await showDialog<String?>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) {
-        return AlertDialog(
-          actions: [
-            IconButton(
-              onPressed: () => Navigator.pop(dialogContext, null),
-              icon: Icon(Icons.close),
+    final result = await Navigator.push<String?>(
+      context,
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (pageContext) {
+          return Scaffold(
+            appBar: AppBar(
+              leading: IconButton(
+                onPressed: () => Navigator.pop(pageContext, null),
+                icon: const Icon(Icons.close),
+              ),
+              title: Text(title),
             ),
-          ],
-          content: Container(
-            width:
-                min(popupWidth.toDouble(), MediaQuery.of(context).size.width),
-            height:
-                min(popupHeight.toDouble(), MediaQuery.of(context).size.height),
-            child: flutterWebView.WebViewWidget(
+            body: flutterWebView.WebViewWidget(
               controller: controller
                 ..setNavigationDelegate(
                   NavigationDelegate(
                     onPageFinished: (String url) {
                       if (url.startsWith(redirectUrl)) {
-                        Navigator.pop(dialogContext, url);
+                        Navigator.pop(pageContext, url);
                       }
                     },
                     onWebResourceError: (WebResourceError error) {
                       if (Platform.isIOS) {
-                        Navigator.pop(dialogContext, error.url);
+                        Navigator.pop(pageContext, error.url);
                       }
                     },
                   ),
                 )
                 ..loadRequest(Uri.parse(authorizationUrl)),
             ),
-          ),
-          title: Text(title),
-        );
-      },
+          );
+        },
+      ),
     );
 
     if (result == null) throw AuthenticationException(ERROR_USER_CLOSED);
