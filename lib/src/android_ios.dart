@@ -28,28 +28,19 @@ class OpenIdConnectAndroidiOS {
             body: flutterWebView.WebViewWidget(
               controller: controller
                 ..setNavigationDelegate(
-  NavigationDelegate(
-    onNavigationRequest: (NavigationRequest request) {
-      if (request.url.startsWith(redirectUrl)) {
-        Navigator.pop(pageContext, request.url);
-        return NavigationDecision.prevent;
-      }
-      return NavigationDecision.navigate;
-    },
-    onPageFinished: (String url) {
-      if (url.startsWith(redirectUrl)) {
-        Navigator.pop(pageContext, url);
-      }
-    },
-    onWebResourceError: (WebResourceError error) {
-      if (Platform.isIOS &&
-          error.url != null &&
-          error.url!.startsWith(redirectUrl)) {
-        Navigator.pop(pageContext, error.url);
-      }
-    },
-  ),
-)
+                  NavigationDelegate(
+                    onPageFinished: (String url) {
+                      if (url.startsWith(redirectUrl)) {
+                        Navigator.pop(pageContext, url);
+                      }
+                    },
+                    onWebResourceError: (WebResourceError error) {
+                      if (Platform.isIOS) {
+                        Navigator.pop(pageContext, error.url);
+                      }
+                    },
+                  ),
+                )
                 ..loadRequest(Uri.parse(authorizationUrl)),
             ),
           );
